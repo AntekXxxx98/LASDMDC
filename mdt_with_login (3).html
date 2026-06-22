@@ -1,0 +1,2427 @@
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel-cream:#d9d2bc;
+    --header-green:#1f6b52;
+    --header-green-dark:#175440;
+    --header-gold:#c89b1c;
+    --header-gold-dark:#a87f15;
+    --text-dark:#1a1a1a;
+    --text-muted:#5a5648;
+    --line:#000;
+    --available:#2f8f4e;
+    --not-available:#b23b2e;
+    --code6:#c89b1c;
+    --code7:#3b6fa8;
+    --code1097:#6a3fa0;
+  }
+
+  *{box-sizing:border-box;}
+
+  .mdt-root{
+    font-family:'Bahnschrift','Segoe UI',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    width:100%;
+    height:680px;
+    display:flex;
+    flex-direction:column;
+    border:2px solid var(--line);
+    overflow:hidden;
+    position:relative;
+    user-select:none;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    display:flex;
+    height:64px;
+    flex-shrink:0;
+    border-bottom:2px solid var(--line);
+  }
+  .top-btn{
+    flex:1;
+    background:var(--header-green);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    border-right:2px solid var(--line);
+    cursor:pointer;
+    transition:background 0.12s ease;
+    padding:0 6px;
+  }
+  .top-btn:hover{ background:var(--header-green-dark); }
+  .top-btn:last-child{ border-right:none; }
+  .top-btn.newmsg{ background:#7a3fb0; }
+  .top-btn.newmsg:hover{ background:#5f2f8a; }
+
+  .top-btn.status-AVAILABLE{ background:var(--available); }
+  .top-btn.status-AVAILABLE:hover{ background:#247340; }
+  .top-btn.status-NOT-AVAILABLE{ background:var(--not-available); }
+  .top-btn.status-NOT-AVAILABLE:hover{ background:#8c2c22; }
+  .top-btn.status-CODE-6{ background:var(--code6); color:#1a1a1a; }
+  .top-btn.status-CODE-6:hover{ background:var(--header-gold-dark); color:#fff; }
+  .top-btn.status-CODE-7{ background:var(--code7); }
+  .top-btn.status-CODE-7:hover{ background:#2c5683; }
+  .top-btn.status-10-97{ background:var(--code1097); }
+  .top-btn.status-10-97:hover{ background:#54317f; }
+  .top-btn.delete-call{ background:var(--not-available); }
+  .top-btn.delete-call:hover{ background:#8c2c22; }
+
+  .top-btn.status-selected{
+    outline:3px solid #fff;
+    outline-offset:-4px;
+  }
+
+  /* ===== MAIN BODY ===== */
+  .body-wrap{
+    flex:1;
+    display:flex;
+    min-height:0;
+  }
+
+  .left-col{
+    width:280px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    border-right:2px solid var(--line);
+  }
+
+  .section-label{
+    background:var(--header-gold);
+    color:#1a1a1a;
+    font-size:13px;
+    font-weight:700;
+    padding:6px 10px;
+    letter-spacing:0.02em;
+    flex-shrink:0;
+  }
+  .section-label-row{
+    background:var(--header-gold);
+    color:#1a1a1a;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 6px 6px 10px;
+    flex-shrink:0;
+  }
+  .section-label-row .section-label-text{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .section-add-btn{
+    background:var(--header-green);
+    color:#fff;
+    border:none;
+    width:22px;
+    height:22px;
+    font-size:15px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .section-add-btn:hover{ background:var(--header-green-dark); }
+
+  /* Dispatch Index */
+  .dispatch-index{
+    flex:1.4;
+    background:var(--panel-cream);
+    overflow-y:auto;
+    border-bottom:2px solid var(--line);
+  }
+  .unit-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:7px 10px;
+    border-bottom:1px solid #b7af93;
+    font-size:13px;
+  }
+  .unit-row.is-me{
+    background:#ece6cf;
+  }
+  .unit-row .callsign{
+    font-weight:700;
+  }
+  .unit-row .unit-right{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .unit-remove-btn{
+    flex-shrink:0;
+    background:none;
+    border:1px solid #8a8367;
+    color:#7a2e2e;
+    width:20px;
+    height:20px;
+    font-size:12px;
+    line-height:1;
+    cursor:pointer;
+    transition:background 0.12s ease, color 0.12s ease;
+  }
+  .unit-remove-btn:hover{
+    background:#7a2e2e;
+    color:#fff;
+  }
+  .status-pill{
+    font-size:10px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:2px;
+    color:#fff;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+    cursor:pointer;
+    position:relative;
+    border:none;
+    font-family:inherit;
+  }
+  .status-pill:hover{ filter:brightness(1.12); }
+  .status-pill.st-AVAILABLE{ background:var(--available); }
+  .status-pill.st-NOT-AVAILABLE{ background:var(--not-available); }
+  .status-pill.st-CODE-6{ background:var(--code6); color:#1a1a1a; }
+  .status-pill.st-CODE-7{ background:var(--code7); }
+  .status-pill.st-10-97{ background:var(--code1097); }
+
+  .status-dropdown{
+    position:absolute;
+    top:calc(100% + 4px);
+    right:0;
+    background:#fff;
+    border:1px solid #8a8367;
+    box-shadow:0 4px 14px rgba(0,0,0,0.3);
+    z-index:40;
+    display:flex;
+    flex-direction:column;
+    min-width:130px;
+  }
+  .status-dropdown button{
+    border:none;
+    background:#fff;
+    color:var(--text-dark);
+    text-align:left;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .status-dropdown button:hover{ background:#eee7d4; }
+  .status-dropdown button .dot{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    margin-right:6px;
+  }
+  .status-dropdown button.opt-AVAILABLE .dot{ background:var(--available); }
+  .status-dropdown button.opt-NOT-AVAILABLE .dot{ background:var(--not-available); }
+  .status-dropdown button.opt-CODE-6 .dot{ background:var(--code6); }
+  .status-dropdown button.opt-CODE-7 .dot{ background:var(--code7); }
+  .status-dropdown button.opt-10-97 .dot{ background:var(--code1097); }
+
+  .join-row{
+    background:var(--panel-cream);
+    border-bottom:2px solid var(--line);
+    padding:8px 10px;
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .join-row input{
+    flex:1;
+    min-width:0;
+    border:1px solid #8a8367;
+    background:#fff;
+    padding:5px 7px;
+    font-size:13px;
+    font-family:inherit;
+  }
+  .join-row input:disabled{
+    background:#eee7d4;
+    color:#5a5648;
+  }
+  .join-row button{
+    border:none;
+    background:var(--header-green);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 12px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .join-row button:hover{ background:var(--header-green-dark); }
+  .join-row button:disabled{
+    background:var(--header-green);
+    cursor:default;
+  }
+
+  /* Dispatch Detail / Calls */
+  .dispatch-detail{
+    flex:1;
+    background:var(--panel-cream);
+    padding:0;
+    font-size:13px;
+    color:var(--text-muted);
+    overflow-y:auto;
+  }
+  .dispatch-detail .empty-state{
+    padding:10px;
+  }
+  .call-row{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:8px 10px;
+    border-bottom:1px solid #b7af93;
+    cursor:pointer;
+    transition:background 0.12s ease;
+  }
+  .call-row:hover{ background:#ece6cf; }
+  .call-row .call-number{
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--text-dark);
+  }
+  .call-row .call-location{
+    font-size:12px;
+    color:var(--text-muted);
+    word-break:break-word;
+  }
+
+  /* Call Detail modal */
+  .call-detail-info{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .call-detail-info .label{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:4px;
+  }
+  .call-detail-info .value{
+    font-size:14px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .responding-units{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .responding-units .unit-chip{
+    background:var(--header-green);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    letter-spacing:0.02em;
+  }
+  .responding-units .unit-chip.me{
+    background:var(--code1097);
+  }
+
+  /* Delete Call modal */
+  .delete-call-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 10px;
+    border:1px solid #8a8367;
+    background:#fff;
+  }
+  .delete-call-row .call-info{
+    min-width:0;
+    flex:1;
+  }
+  .delete-call-row .call-info .call-number{
+    font-weight:700;
+    font-size:12.5px;
+  }
+  .delete-call-row .call-info .call-location{
+    font-size:11.5px;
+    color:var(--text-muted);
+    word-break:break-word;
+  }
+  .delete-call-row button{
+    flex-shrink:0;
+    background:var(--not-available);
+    color:#fff;
+    border:none;
+    font-size:11px;
+    font-weight:700;
+    padding:7px 12px;
+    cursor:pointer;
+  }
+  .delete-call-row button:hover{ background:#8c2c22; }
+
+
+  .right-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+
+  .bolo-floating{
+    position:absolute;
+    right:14px;
+    bottom:14px;
+    width:84px;
+    height:84px;
+    background:var(--not-available);
+    color:#fff;
+    border:none;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    border-radius:6px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.45);
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .bolo-floating:hover{ background:#8c2c22; }
+
+  .shift-detail-floating{
+    position:absolute;
+    right:14px;
+    bottom:110px;
+    width:84px;
+    height:84px;
+    background:var(--code7);
+    color:#fff;
+    border:none;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    border-radius:6px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.45);
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.2;
+    padding:4px;
+  }
+  .shift-detail-floating:hover{ background:#2c5683; }
+
+  .message-detail{
+    flex:1;
+    background:var(--panel-cream);
+    overflow-y:auto;
+    padding:14px;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .msg-empty{
+    color:var(--text-muted);
+    font-style:italic;
+  }
+  .msg-item{
+    background:#fff;
+    border:1px solid #8a8367;
+    padding:8px 32px 8px 10px;
+    margin-bottom:8px;
+    position:relative;
+  }
+  .msg-item .meta{
+    font-size:11px;
+    color:var(--text-muted);
+    margin-bottom:3px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding-right:4px;
+    gap:8px;
+  }
+  .msg-item .from-block{
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    min-width:0;
+    overflow:hidden;
+  }
+  .msg-item .from{
+    font-weight:700;
+    color:var(--text-dark);
+    white-space:nowrap;
+  }
+  .msg-item .from-discord{
+    font-size:10px;
+    color:var(--text-muted);
+    opacity:0.65;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .msg-item .from-discord::before{
+    content:"· ";
+  }
+  .msg-delete{
+    position:absolute;
+    top:6px;
+    right:6px;
+    width:18px;
+    height:18px;
+    background:var(--not-available);
+    color:#fff;
+    border:none;
+    font-size:11px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .msg-delete:hover{ background:#8c2c22; }
+
+  /* ===== MODALS ===== */
+  .modal-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal-overlay.show{ display:flex; }
+
+  .modal-box{
+    width:560px;
+    max-width:92%;
+    max-height:88%;
+    background:var(--panel-cream);
+    border:2px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  }
+  .modal-box.modal-wide{ width:640px; }
+  .modal-box.modal-detail{ width:760px; }
+  .bolo-detail-body{
+    display:flex;
+    gap:18px;
+    padding:18px;
+    flex:1;
+    overflow-y:auto;
+  }
+  .bolo-detail-photo{
+    width:300px;
+    flex-shrink:0;
+    background:#fff;
+    border:1px solid #8a8367;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .bolo-detail-photo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  .bolo-detail-info{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .bolo-detail-info .label{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:4px;
+  }
+  .bolo-detail-info .value{
+    font-size:14px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .lightbox-inner{
+    position:relative;
+    max-width:90vw;
+    max-height:90vh;
+  }
+  .lightbox-inner img{
+    max-width:90vw;
+    max-height:90vh;
+    object-fit:contain;
+    display:block;
+    border:2px solid #fff;
+  }
+  .modal-header{
+    background:#e7e3d3;
+    border-bottom:2px solid var(--line);
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-weight:700;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .modal-close{
+    background:var(--not-available);
+    color:#fff;
+    border:none;
+    width:26px;
+    height:26px;
+    font-weight:700;
+    cursor:pointer;
+    line-height:1;
+    flex-shrink:0;
+  }
+  .modal-close:hover{ background:#8c2c22; }
+  .modal-body{
+    padding:16px;
+    overflow-y:auto;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .field-label{
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:4px;
+    display:block;
+  }
+  .field-label .req{ color:var(--not-available); }
+  .modal-body input[type="text"],
+  .modal-body textarea{
+    width:100%;
+    border:1px solid #8a8367;
+    background:#fff;
+    padding:7px 8px;
+    font-size:13px;
+    font-family:inherit;
+    resize:vertical;
+  }
+  .modal-body textarea{ min-height:70px; }
+
+  .msg-sender-preview{
+    background:#fff;
+    border:1px solid #8a8367;
+    padding:8px 10px;
+  }
+  .msg-sender-preview .msg-sender-name{
+    font-size:14px;
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .msg-sender-preview .msg-sender-discord{
+    font-size:10.5px;
+    color:var(--text-muted);
+    margin-top:2px;
+    opacity:0.75;
+  }
+
+  .photo-drop{
+    border:2px dashed #8a8367;
+    background:#fff;
+    min-height:140px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:12px;
+    color:var(--text-muted);
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    padding:10px;
+  }
+  .photo-drop.has-img{ border-style:solid; }
+  .photo-drop img{
+    max-width:100%;
+    max-height:220px;
+    object-fit:contain;
+  }
+  .photo-drop input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+
+  .modal-footer{
+    border-top:2px solid var(--line);
+    padding:10px 14px;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .btn-primary, .btn-secondary{
+    border:none;
+    padding:9px 18px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    color:#fff;
+  }
+  .btn-primary{ background:var(--header-green); }
+  .btn-primary:hover{ background:var(--header-green-dark); }
+  .btn-primary:disabled{ background:#9a9a9a; cursor:not-allowed; }
+  .btn-secondary{ background:#6a665a; }
+  .btn-secondary:hover{ background:#524f46; }
+
+  /* BOLO browse modal */
+  .bolo-tabs{
+    display:flex;
+    border-bottom:2px solid var(--line);
+    flex-shrink:0;
+  }
+  .bolo-tab{
+    flex:1;
+    border:none;
+    background:#e7e3d3;
+    color:var(--text-dark);
+    padding:10px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    border-right:1px solid #b7af93;
+  }
+  .bolo-tab:last-child{ border-right:none; }
+  .bolo-tab.active{
+    background:var(--header-gold);
+  }
+  .bolo-tab:hover:not(.active){ background:#dcd6c1; }
+
+  .bolo-feed{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .bolo-card{
+    background:#fff;
+    border:1px solid #8a8367;
+    display:flex;
+    gap:10px;
+    padding:8px;
+    cursor:pointer;
+    transition:background 0.12s ease;
+  }
+  .bolo-card:hover{ background:#f3f0e4; }
+  .bolo-card img{
+    width:84px;
+    height:84px;
+    object-fit:cover;
+    border:1px solid #8a8367;
+    flex-shrink:0;
+  }
+  .bolo-card .bolo-text{
+    flex:1;
+    min-width:0;
+  }
+  .bolo-card .bolo-meta{
+    font-size:10.5px;
+    color:var(--text-muted);
+    margin-bottom:3px;
+  }
+  .bolo-card .bolo-desc{
+    font-size:12.5px;
+    line-height:1.4;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .bolo-card .bolo-delete{
+    flex-shrink:0;
+    align-self:flex-start;
+    background:none;
+    border:1px solid #8a8367;
+    color:#7a2e2e;
+    width:26px;
+    height:26px;
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+    transition:background 0.12s ease, color 0.12s ease;
+  }
+  .bolo-card .bolo-delete:hover{
+    background:#7a2e2e;
+    color:#fff;
+  }
+
+  .toast{
+    position:absolute;
+    bottom:14px;
+    left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:#1a1a1a;
+    color:#fff;
+    padding:9px 18px;
+    font-size:12px;
+    font-weight:600;
+    border-radius:3px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s ease, transform 0.2s ease;
+    z-index:60;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .empty-state{
+    color:var(--text-muted);
+    font-style:italic;
+    font-size:12.5px;
+    padding:10px;
+  }
+
+  .scroll-thin::-webkit-scrollbar{ width:8px; }
+  .scroll-thin::-webkit-scrollbar-thumb{ background:#a89f7f; }
+  .scroll-thin::-webkit-scrollbar-track{ background:transparent; }
+
+  /* ===== LOGIN OVERLAY ===== */
+  .login-overlay{
+    position:absolute;
+    inset:0;
+    background:#0a0a0a;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-family:'Bahnschrift','Segoe UI',Arial,sans-serif;
+  }
+  .login-overlay.hidden{
+    display:none;
+  }
+
+  .login-header{
+    width:100%;
+    height:64px;
+    background:var(--header-green);
+    border-bottom:2px solid #000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:absolute;
+    top:0;
+    left:0;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    color:#fff;
+    text-transform:uppercase;
+  }
+
+  .login-box{
+    background:var(--panel-cream);
+    border:2px solid #000;
+    width:380px;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 12px 40px rgba(0,0,0,0.7);
+  }
+
+  .login-box-header{
+    background:var(--header-gold);
+    color:#1a1a1a;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    padding:8px 12px;
+    border-bottom:2px solid #000;
+    text-transform:uppercase;
+  }
+
+  .login-box-body{
+    padding:20px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .login-field-label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin-bottom:5px;
+  }
+
+  .login-input{
+    width:100%;
+    border:1px solid #8a8367;
+    background:#fff;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'Bahnschrift','Segoe UI',Arial,sans-serif;
+    color:var(--text-dark);
+    outline:none;
+  }
+  .login-input:focus{
+    border-color:#1f6b52;
+    box-shadow:0 0 0 2px rgba(31,107,82,0.2);
+  }
+
+  .login-divider{
+    height:2px;
+    background:#b7af93;
+    margin:0 -16px;
+  }
+
+  .login-info-text{
+    font-size:11.5px;
+    color:var(--text-muted);
+    line-height:1.5;
+    font-style:italic;
+  }
+
+  .login-box-footer{
+    border-top:2px solid #000;
+    padding:12px 16px;
+    display:flex;
+    gap:8px;
+    justify-content:flex-end;
+    background:#e7e3d3;
+  }
+
+  .login-btn{
+    border:none;
+    padding:9px 22px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'Bahnschrift','Segoe UI',Arial,sans-serif;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:#fff;
+    background:var(--header-green);
+    transition:background 0.12s ease;
+  }
+  .login-btn:hover{ background:var(--header-green-dark); }
+  .login-btn:disabled{
+    background:#9a9a9a;
+    cursor:not-allowed;
+  }
+
+  .login-error{
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--not-available);
+    display:none;
+    padding:6px 10px;
+    border:1px solid var(--not-available);
+    background:#fdf0ee;
+    letter-spacing:0.02em;
+  }
+  .login-error.show{ display:block; }
+
+  .login-badge{
+    display:inline-block;
+    background:var(--header-green);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 8px;
+    letter-spacing:0.04em;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  /* Shift detail modal */
+  .shift-person-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .shift-person-row{
+    background:#fff;
+    border:1px solid #8a8367;
+    padding:8px 10px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .shift-person-row .shift-person-name{
+    font-size:14px;
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .shift-person-row .shift-person-discord{
+    font-size:10.5px;
+    color:var(--text-muted);
+    opacity:0.7;
+    white-space:nowrap;
+  }
+
+  /* Unit info modal */
+  .unit-info-grid{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .unit-info-field .label{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:4px;
+  }
+  .unit-info-field .value{
+    font-size:14px;
+    line-height:1.5;
+    word-break:break-word;
+  }
+  .unit-info-callsign-badge{
+    font-size:20px;
+    font-weight:700;
+    color:var(--text-dark);
+    letter-spacing:0.04em;
+  }
+  .unit-info-status-pill{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 10px;
+    color:#fff;
+    margin-top:4px;
+  }
+  .unit-info-status-pill.st-AVAILABLE{ background:var(--available); }
+  .unit-info-status-pill.st-NOT-AVAILABLE{ background:var(--not-available); }
+  .unit-info-status-pill.st-CODE-6{ background:var(--code6); color:#1a1a1a; }
+  .unit-info-status-pill.st-CODE-7{ background:var(--code7); }
+  .unit-info-status-pill.st-10-97{ background:var(--code1097); }
+  .unit-info-calls-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .unit-info-call-chip{
+    background:#fff;
+    border:1px solid #8a8367;
+    padding:6px 10px;
+    font-size:12px;
+  }
+  .unit-info-call-chip .call-chip-num{
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .unit-info-call-chip .call-chip-loc{
+    color:var(--text-muted);
+    font-size:11.5px;
+    margin-top:1px;
+  }
+  .btn-join{
+    background:var(--code1097);
+    color:#fff;
+    border:none;
+    padding:9px 18px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn-join:hover{ background:#54317f; }
+  .btn-join:disabled{ background:#9a9a9a; cursor:not-allowed; }
+
+  /* clickable callsign in dispatch index */
+  .callsign-link{
+    cursor:pointer;
+    text-decoration:underline dotted;
+    text-underline-offset:2px;
+  }
+  .callsign-link:hover{ color:var(--header-green); }
+</style>
+
+<div class="mdt-root scroll-thin" id="mdtRoot">
+
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-header">
+      ■ LA COUNTY SHERIFF — MOBILE DATA COMPUTER ■
+    </div>
+    <div class="login-box">
+      <div class="login-box-header">
+        AUTORYZACJA DOSTĘPU <span class="login-badge">WYMAGANE</span>
+      </div>
+      <div class="login-box-body">
+        <div class="login-error" id="loginError">
+          ✕ &nbsp;Dostęp odmówiony. Sprawdź dane i spróbuj ponownie.
+        </div>
+        <div>
+          <span class="login-field-label">Nick Discord</span>
+          <input class="login-input" type="text" id="loginDiscordNick" placeholder="np. kowalski#1234" maxlength="64" autocomplete="off">
+        </div>
+        <div class="login-divider"></div>
+        <div>
+          <span class="login-field-label">Imię i Nazwisko</span>
+          <input class="login-input" type="text" id="loginFullName" placeholder="np. Jan Kowalski" maxlength="64" autocomplete="off">
+        </div>
+        <p class="login-info-text">Dostęp do systemu MDC jest zastrzeżony dla autoryzowanego personelu. Wprowadź dane zgodne z profilem Discord przypisanym do jednostki.</p>
+      </div>
+      <div class="login-box-footer">
+        <button class="login-btn" id="loginBtn" disabled>ZALOGUJ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-btn">CLEAR DISP WINDOW</div>
+    <div class="top-btn status-AVAILABLE" data-status="AVAILABLE">AVAILABLE</div>
+    <div class="top-btn status-NOT-AVAILABLE" data-status="NOT-AVAILABLE">NOT AVAILABLE</div>
+    <div class="top-btn status-CODE-6" data-status="CODE-6">CODE 6</div>
+    <div class="top-btn status-CODE-7" data-status="CODE-7">CODE 7</div>
+    <div class="top-btn delete-call" id="deleteCallTopBtn">10-98</div>
+    <div class="top-btn newmsg" id="newMessageBtn">NEW MESSAGE</div>
+    <div class="top-btn" id="logoutBtn" style="background:#3a3a3a; font-size:11px;" title="Wyloguj się">WYLOGUJ</div>
+  </div>
+
+  <div class="body-wrap">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+      <div class="section-label">DISPATCH INDEX</div>
+      <div class="dispatch-index scroll-thin" id="dispatchIndex">
+        <div class="empty-state">No units on shift. Sign on below.</div>
+      </div>
+
+      <div class="join-row">
+        <input type="text" id="callsignInput" placeholder="Enter callsign e.g. 282B" maxlength="12">
+        <button id="signOnBtn">SIGN ON</button>
+      </div>
+
+      <div class="section-label-row">
+        <span class="section-label-text">DISPATCH DETAIL</span>
+        <button class="section-add-btn" id="addCallBtn" title="Add Call">+</button>
+      </div>
+      <div class="dispatch-detail scroll-thin" id="dispatchDetail">
+        <div class="empty-state">No active calls.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+      <div class="section-label">MESSAGE DETAIL / DEFAULT WINDOW — LA COUNTY SHERIFF MDC</div>
+      <div class="message-detail scroll-thin" id="messageDetail">
+        <div class="msg-empty">No messages.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="shift-detail-floating" id="shiftDetailBtn">SHIFT DETAIL</button>
+  <button class="bolo-floating" id="boloLaunchBtn">BOLO</button>
+
+  <!-- ADD CALL MODAL -->
+  <div class="modal-overlay" id="addCallModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>ADD CALL</span>
+        <button class="modal-close" data-close="addCallModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <span class="field-label">Lokalizacja <span class="req">*</span></span>
+          <input type="text" id="callLocationInput" placeholder="np. 5th &amp; Main St">
+        </div>
+        <div>
+          <span class="field-label">Typ calla <span class="req">*</span></span>
+          <input type="text" id="callTypeInput" placeholder="np. Napad z bronia">
+        </div>
+        <div>
+          <span class="field-label">Opis <span class="req">*</span></span>
+          <textarea id="callDescInput" placeholder="Opis sytuacji..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="addCallModal">Cancel</button>
+        <button class="btn-primary" id="submitCallBtn" disabled>Add Call</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALL DETAIL MODAL -->
+  <div class="modal-overlay" id="callDetailModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="callDetailTitle">CALL DETAIL</span>
+        <button class="modal-close" data-close="callDetailModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="call-detail-info">
+          <div>
+            <div class="label">Lokalizacja</div>
+            <div class="value" id="callDetailLocation"></div>
+          </div>
+          <div>
+            <div class="label">Typ calla</div>
+            <div class="value" id="callDetailType"></div>
+          </div>
+          <div>
+            <div class="label">Opis</div>
+            <div class="value" id="callDetailDesc"></div>
+          </div>
+          <div>
+            <div class="label">Jednostki reagujące</div>
+            <div class="responding-units" id="callDetailUnits"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="callRespondBtn">REAGUJ</button>
+        <button class="btn-secondary" id="callOnSceneBtn">NA MIEJSCU</button>
+        <button class="btn-secondary" data-close="callDetailModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CALL MODAL -->
+  <div class="modal-overlay" id="deleteCallModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>USUŃ CALL</span>
+        <button class="modal-close" data-close="deleteCallModal">✕</button>
+      </div>
+      <div class="modal-body" id="deleteCallList">
+        <div class="empty-state">No active calls.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="deleteCallModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW MESSAGE MODAL -->
+  <div class="modal-overlay" id="newMessageModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>NEW MESSAGE</span>
+        <button class="modal-close" data-close="newMessageModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="msg-sender-preview" id="msgSenderPreview">
+          <div class="msg-sender-name" id="msgSenderPreviewName">—</div>
+          <div class="msg-sender-discord" id="msgSenderPreviewDiscord">—</div>
+        </div>
+        <div>
+          <span class="field-label">Message <span class="req">*</span></span>
+          <textarea id="msgBody" placeholder="Type your message..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="newMessageModal">Cancel</button>
+        <button class="btn-primary" id="sendMessageBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOLO MODAL (browse + add) -->
+  <div class="modal-overlay" id="boloModal">
+    <div class="modal-box modal-wide">
+      <div class="modal-header">
+        <span>BOLO</span>
+        <button class="modal-close" data-close="boloModal">✕</button>
+      </div>
+      <div class="bolo-tabs">
+        <button class="bolo-tab active" id="boloTabBrowse" data-tab="browse">CURRENT BOLOS</button>
+        <button class="bolo-tab" id="boloTabAdd" data-tab="add">+ ADD BOLO</button>
+      </div>
+
+      <div class="modal-body" id="boloBrowsePane">
+        <div class="bolo-feed" id="boloFeed">
+          <div class="empty-state">No active BOLOs.</div>
+        </div>
+      </div>
+
+      <div class="modal-body" id="boloAddPane" style="display:none;">
+        <div>
+          <span class="field-label">Photo <span class="req">*</span></span>
+          <label class="photo-drop" id="boloPhotoDrop">
+            <span id="boloPhotoPlaceholder">Click to attach a BOLO photo (report screenshot, suspect, vehicle...)</span>
+            <input type="file" id="boloPhotoInput" accept="image/*">
+          </label>
+        </div>
+        <div>
+          <span class="field-label">Description <span style="color:var(--text-muted); font-weight:400;">(optional)</span></span>
+          <textarea id="boloDesc" placeholder="Short description, e.g. armed robbery suspect, last seen heading north on Vinewood..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer" id="boloAddFooter" style="display:none;">
+        <button class="btn-secondary" data-close="boloModal">Cancel</button>
+        <button class="btn-primary" id="submitBoloBtn" disabled>Post BOLO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOLO DETAIL MODAL -->
+  <div class="modal-overlay" id="boloDetailModal">
+    <div class="modal-box modal-detail">
+      <div class="modal-header">
+        <span>BOLO DETAIL</span>
+        <button class="modal-close" data-close="boloDetailModal">✕</button>
+      </div>
+      <div class="bolo-detail-body">
+        <div class="bolo-detail-photo">
+          <img id="boloDetailImg" src="" alt="BOLO photo" style="cursor:zoom-in;">
+        </div>
+        <div class="bolo-detail-info">
+          <div>
+            <div class="label">Posted</div>
+            <div class="value" id="boloDetailTime"></div>
+          </div>
+          <div>
+            <div class="label">Description</div>
+            <div class="value" id="boloDetailDesc"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="boloDetailDeleteBtn">Delete BOLO</button>
+        <button class="btn-secondary" data-close="boloDetailModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX: full-size photo zoom -->
+  <div class="modal-overlay" id="lightboxModal" style="background:rgba(0,0,0,0.86);">
+    <div class="lightbox-inner">
+      <button class="modal-close" data-close="lightboxModal" style="position:absolute; top:-2px; right:-2px;">✕</button>
+      <img id="lightboxImg" src="" alt="BOLO photo full size">
+    </div>
+  </div>
+
+  <!-- SHIFT DETAIL MODAL -->
+  <div class="modal-overlay" id="shiftDetailModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>SHIFT DETAIL — ZALOGOWANI</span>
+        <button class="modal-close" data-close="shiftDetailModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="shift-person-list" id="shiftDetailList">
+          <div class="empty-state">Brak zalogowanych osób.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="shiftDetailModal">Zamknij</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIT INFO MODAL -->
+  <div class="modal-overlay" id="unitInfoModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="unitInfoTitle">UNIT INFO</span>
+        <button class="modal-close" data-close="unitInfoModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="unit-info-grid">
+          <div class="unit-info-field">
+            <div class="label">Callsign / Jednostka</div>
+            <div class="unit-info-callsign-badge" id="unitInfoCallsign">—</div>
+            <div id="unitInfoStatusBadge"></div>
+          </div>
+          <div class="unit-info-field">
+            <div class="label">Nick Discord</div>
+            <div class="value" id="unitInfoDiscord">—</div>
+          </div>
+          <div class="unit-info-field">
+            <div class="label">Imię i Nazwisko</div>
+            <div class="value" id="unitInfoFullName">—</div>
+          </div>
+          <div class="unit-info-field" id="unitInfoCallsSection">
+            <div class="label">Aktywne calle</div>
+            <div class="unit-info-calls-list" id="unitInfoCallsList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-join" id="unitInfoJoinBtn" style="display:none;">DOŁĄCZ DO JEDNOSTKI</button>
+        <button class="btn-secondary" data-close="unitInfoModal">Zamknij</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  // ===== LOGIN OVERLAY LOGIC =====
+  (function(){
+    const overlay   = document.getElementById('loginOverlay');
+    const loginBtn  = document.getElementById('loginBtn');
+    const nickInput = document.getElementById('loginDiscordNick');
+    const nameInput = document.getElementById('loginFullName');
+    const errorBox  = document.getElementById('loginError');
+
+    // Check existing session
+    try {
+      const stored = localStorage.getItem('mdt_session');
+      if(stored){
+        const s = JSON.parse(stored);
+        if(s.discordNick && s.fullName){
+          overlay.classList.add('hidden');
+        }
+      }
+    } catch(e){}
+
+    function validate(){
+      const nick = nickInput.value.trim();
+      const name = nameInput.value.trim();
+      loginBtn.disabled = !(nick.length >= 2 && name.length >= 2);
+    }
+
+    nickInput.addEventListener('input', validate);
+    nameInput.addEventListener('input', validate);
+
+    // Allow Enter key to submit
+    [nickInput, nameInput].forEach(input => {
+      input.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' && !loginBtn.disabled) loginBtn.click();
+      });
+    });
+
+    loginBtn.addEventListener('click', ()=>{
+      const nick = nickInput.value.trim();
+      const name = nameInput.value.trim();
+
+      if(nick.length < 2 || name.length < 2){
+        errorBox.classList.add('show');
+        return;
+      }
+
+      errorBox.classList.remove('show');
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('mdt_session', JSON.stringify({
+          discordNick: nick,
+          fullName: name,
+          loginAt: Date.now()
+        }));
+      } catch(e){}
+
+      // Hide overlay with a brief flash effect
+      loginBtn.textContent = 'AUTORYZACJA...';
+      loginBtn.disabled = true;
+      setTimeout(()=>{
+        overlay.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('mdt-login'));
+      }, 600);
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      if(!confirm('Czy na pewno chcesz się wylogować? Twoja sesja zostanie zakończona.')) return;
+      document.dispatchEvent(new CustomEvent('mdt-logout'));
+      try{ localStorage.removeItem('mdt_session'); }catch(_e){}
+      try{ localStorage.removeItem('mdt_my_callsign'); }catch(_e){}
+      try{ localStorage.removeItem('mdt_session_id'); }catch(_e){}
+      // Reload page to reset all state and show login screen
+      location.reload();
+    });
+  })();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getDatabase, ref, onValue, set, push, remove, update, child, onDisconnect
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD31A2FsZ57B-RNguI0COY1kUji8c2X5Y8",
+    authDomain: "iron-ridge-mdc.firebaseapp.com",
+    databaseURL: "https://iron-ridge-mdc-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "iron-ridge-mdc",
+    storageBucket: "iron-ridge-mdc.firebasestorage.app",
+    messagingSenderId: "751527692078",
+    appId: "1:751527692078:web:1183b241fb03f3fb769cbf",
+    measurementId: "G-RDT6GQEDXE"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getDatabase(fbApp);
+
+  // ---------- state ----------
+  let myCallsign = null;
+  let boloPhotoData = null;
+  let unitsCache = {};
+  let messagesCache = [];
+  let presenceCache = {};
+  let bolosCache = [];
+
+  // Read login session data
+  function getSessionData(){
+    try{
+      const stored = localStorage.getItem('mdt_session');
+      if(stored) return JSON.parse(stored);
+    }catch(_e){}
+    return { discordNick: '', fullName: '' };
+  }
+
+  // ---------- PRESENCE (Shift Detail: who is currently logged in) ----------
+  function getSessionId(){
+    try{
+      let sid = localStorage.getItem('mdt_session_id');
+      if(!sid){
+        sid = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('mdt_session_id', sid);
+      }
+      return sid;
+    }catch(_e){
+      return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+    }
+  }
+  const presenceRef = ref(db, 'presence');
+
+  function setupPresence(){
+    const session = getSessionData();
+    if(!session.fullName) return;
+    const sid = getSessionId();
+    const myPresenceRef = child(presenceRef, sid);
+    set(myPresenceRef, {
+      fullName: session.fullName || '',
+      discordNick: session.discordNick || '',
+      loginAt: session.loginAt || Date.now()
+    }).catch(e => console.error('presence set error', e));
+    onDisconnect(myPresenceRef).remove();
+  }
+
+  onValue(presenceRef, (snapshot)=>{
+    const val = snapshot.val() || {};
+    presenceCache = val;
+    renderShiftDetail();
+  }, (err)=>{
+    console.error('presence onValue error', err);
+  });
+
+  function renderShiftDetail(){
+    const list = document.getElementById('shiftDetailList');
+    if(!list) return;
+    const entries = Object.values(presenceCache).sort((a,b)=> (a.loginAt||0) - (b.loginAt||0));
+    if(entries.length === 0){
+      list.innerHTML = '<div class="empty-state">Brak zalogowanych osób.</div>';
+      return;
+    }
+    list.innerHTML = entries.map(p => `
+      <div class="shift-person-row">
+        <div class="shift-person-name">${escapeHtml(p.fullName || '(brak danych)')}</div>
+        <div class="shift-person-discord">${escapeHtml(p.discordNick || '')}</div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('shiftDetailBtn').addEventListener('click', ()=>{
+    renderShiftDetail();
+    openModal('shiftDetailModal');
+  });
+
+  document.addEventListener('mdt-login', setupPresence);
+  document.addEventListener('mdt-logout', ()=>{
+    try{
+      const sid = localStorage.getItem('mdt_session_id');
+      if(sid) remove(child(presenceRef, sid)).catch(()=>{});
+    }catch(_e){}
+  });
+
+  setupPresence();
+
+  // ---------- helpers ----------
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=> t.classList.remove('show'), 2400);
+  }
+
+  function openModal(id){ document.getElementById(id).classList.add('show'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+  document.querySelectorAll('[data-close]').forEach(btn=>{
+    btn.addEventListener('click', ()=> closeModal(btn.getAttribute('data-close')));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', (e)=>{ if(e.target === ov) closeModal(ov.id); });
+  });
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = String(str == null ? '' : str);
+    return d.innerHTML;
+  }
+
+  let fbErrorShown = false;
+  function notifyFbErrorOnce(){
+    if(fbErrorShown) return;
+    fbErrorShown = true;
+    showToast('Database connection issue — check Firebase rules/config.');
+  }
+
+  // ---------- DISPATCH INDEX (shared units, realtime via Firebase) ----------
+  const STATUS_OPTIONS = ['AVAILABLE', 'NOT-AVAILABLE', 'CODE-6', 'CODE-7', '10-97'];
+  function formatStatusLabel(status){
+    if(status === '10-97') return 'W DRODZE';
+    return status.startsWith('10-') ? status : status.replace('-', ' ');
+  }
+  const unitsRef = ref(db, 'units');
+
+  function renderUnits(units){
+    unitsCache = units || {};
+    const container = document.getElementById('dispatchIndex');
+    const entries = Object.entries(unitsCache)
+      .map(([key, u]) => ({ key, ...u }))
+      .sort((a,b)=> a.callsign.localeCompare(b.callsign));
+    if(entries.length === 0){
+      container.innerHTML = '<div class="empty-state">No units on shift. Sign on below.</div>';
+      return;
+    }
+    container.innerHTML = entries.map(u => {
+      const riders = u.riders ? Object.values(u.riders) : [];
+      const ridersHtml = riders.length > 0
+        ? `<span style="font-size:10px; color:var(--text-muted); margin-right:4px;" title="${riders.map(r=>r.callsign).join(', ')}">+${riders.length}</span>`
+        : '';
+      return `
+      <div class="unit-row ${u.callsign === myCallsign ? 'is-me' : ''}">
+        <span class="callsign callsign-link" data-info-callsign="${escapeHtml(u.callsign)}" data-info-key="${escapeHtml(u.key)}">${escapeHtml(u.callsign)}</span>
+        <span class="unit-right">
+          ${ridersHtml}
+          <span class="status-pill st-${u.status}" data-callsign="${escapeHtml(u.callsign)}" data-unit-key="${escapeHtml(u.key)}">${formatStatusLabel(u.status)}</span>
+          <button class="unit-remove-btn" data-remove-key="${escapeHtml(u.key)}" data-remove-callsign="${escapeHtml(u.callsign)}" title="Remove unit">✕</button>
+        </span>
+      </div>
+    `}).join('');
+  }
+
+  let sessionRestoreDone = false;
+
+  // ---------- UNIT INFO MODAL ----------
+  function openUnitInfoModal(callsign){
+    const unit = Object.values(unitsCache).find(u => u.callsign === callsign);
+    if(!unit) return;
+
+    document.getElementById('unitInfoTitle').textContent = 'UNIT INFO — ' + callsign;
+    document.getElementById('unitInfoCallsign').textContent = callsign;
+    document.getElementById('unitInfoDiscord').textContent = unit.discordNick || '(brak danych)';
+    document.getElementById('unitInfoFullName').textContent = unit.fullName || '(brak danych)';
+
+    // Status badge
+    const statusBadge = document.getElementById('unitInfoStatusBadge');
+    statusBadge.innerHTML = `<span class="unit-info-status-pill st-${unit.status}">${formatStatusLabel(unit.status)}</span>`;
+
+    // Calls this unit is assigned to
+    const assignedCalls = callsCache.filter(c => c.units && Object.values(c.units).includes(callsign));
+    const callsList = document.getElementById('unitInfoCallsList');
+    const callsSection = document.getElementById('unitInfoCallsSection');
+    if(assignedCalls.length === 0){
+      callsSection.style.display = 'none';
+    } else {
+      callsSection.style.display = '';
+      const sorted = getSortedCalls();
+      callsList.innerHTML = assignedCalls.map(c => {
+        const idx = sorted.findIndex(x => x.key === c.key);
+        return `<div class="unit-info-call-chip"><div class="call-chip-num">CALL #${idx + 1}</div><div class="call-chip-loc">${escapeHtml(c.location)} — ${escapeHtml(c.type)}</div></div>`;
+      }).join('');
+    }
+
+    // Riders info
+    const riders = unit.riders ? Object.values(unit.riders) : [];
+    let ridersSection = document.getElementById('unitInfoRidersSection');
+    if(!ridersSection){
+      ridersSection = document.createElement('div');
+      ridersSection.className = 'unit-info-field';
+      ridersSection.id = 'unitInfoRidersSection';
+      ridersSection.innerHTML = '<div class="label">Przypisane osoby (pasażerowie)</div><div id="unitInfoRidersList"></div>';
+      document.getElementById('unitInfoCallsSection').after(ridersSection);
+    }
+    const ridersList = document.getElementById('unitInfoRidersList');
+    if(riders.length === 0){
+      ridersSection.style.display = 'none';
+    } else {
+      ridersSection.style.display = '';
+      ridersList.innerHTML = riders.map(r => `
+        <div class="unit-info-call-chip">
+          <div class="call-chip-num">${escapeHtml(r.callsign)}</div>
+          <div class="call-chip-loc">${escapeHtml(r.discordNick || '')}${r.fullName ? ' — ' + escapeHtml(r.fullName) : ''}</div>
+        </div>`).join('');
+    }
+
+    // Join button logic:
+    // Show only if: we are signed on, this isn't our own callsign, and we haven't already joined another callsign
+    const joinBtn = document.getElementById('unitInfoJoinBtn');
+    const isMine = callsign === myCallsign;
+    // Check if current user is already "joined" to a callsign (i.e. myCallsign exists in Firebase)
+    const alreadySignedOn = !!myCallsign;
+
+    if(!isMine && alreadySignedOn){
+      // Check if user is already attached to this specific callsign as a secondary rider
+      const alreadyJoined = unit.riders && Object.values(unit.riders).some(r => r.callsign === myCallsign);
+      if(alreadyJoined){
+        joinBtn.style.display = '';
+        joinBtn.textContent = 'OPUŚĆ JEDNOSTKĘ';
+        joinBtn.disabled = false;
+        joinBtn.onclick = () => leaveUnit(callsign);
+      } else {
+        // Check if myCallsign is primary owner of any unit (signed on as that callsign)
+        // Cannot join another unit if you ARE a primary callsign — but you can join as rider
+        // Block joining if you're already a rider on another unit
+        const alreadyRiderElsewhere = Object.values(unitsCache).some(u =>
+          u.callsign !== callsign && u.riders && Object.values(u.riders).some(r => r.callsign === myCallsign)
+        );
+        if(alreadyRiderElsewhere){
+          joinBtn.style.display = '';
+          joinBtn.textContent = 'JUŻ PRZYPISANY DO INNEJ JEDNOSTKI';
+          joinBtn.disabled = true;
+          joinBtn.onclick = null;
+        } else {
+          joinBtn.style.display = '';
+          joinBtn.textContent = 'DOŁĄCZ DO JEDNOSTKI';
+          joinBtn.disabled = false;
+          joinBtn.onclick = () => joinUnit(callsign);
+        }
+      }
+    } else {
+      joinBtn.style.display = 'none';
+      joinBtn.onclick = null;
+    }
+
+    openModal('unitInfoModal');
+  }
+
+  async function joinUnit(targetCallsign){
+    if(!myCallsign){ showToast('Musisz być zalogowany.'); return; }
+    const targetUnitKey = unitKey(targetCallsign);
+    const session = getSessionData();
+    try{
+      await update(child(unitsRef, targetUnitKey + '/riders'), {
+        [unitKey(myCallsign)]: { callsign: myCallsign, discordNick: session.discordNick || '', fullName: session.fullName || '' }
+      });
+      showToast(myCallsign + ' dołączył do jednostki ' + targetCallsign + '.');
+      openUnitInfoModal(targetCallsign);
+    }catch(e){
+      console.error('joinUnit error', e);
+      notifyFbErrorOnce();
+    }
+  }
+
+  async function leaveUnit(targetCallsign){
+    if(!myCallsign) return;
+    const targetUnitKey = unitKey(targetCallsign);
+    try{
+      await remove(child(unitsRef, targetUnitKey + '/riders/' + unitKey(myCallsign)));
+      showToast(myCallsign + ' opuścił jednostkę ' + targetCallsign + '.');
+      openUnitInfoModal(targetCallsign);
+    }catch(e){
+      console.error('leaveUnit error', e);
+      notifyFbErrorOnce();
+    }
+  }
+  onValue(unitsRef, (snapshot)=>{
+    const units = snapshot.val() || {};
+    renderUnits(units);
+    if(!sessionRestoreDone){
+      sessionRestoreDone = true;
+      let storedCallsign = null;
+      try{ storedCallsign = localStorage.getItem('mdt_my_callsign'); }catch(_e){}
+      if(storedCallsign){
+        const stillExists = Object.values(units).some(u => u.callsign === storedCallsign);
+        if(stillExists){
+          myCallsign = storedCallsign;
+          const input = document.getElementById('callsignInput');
+          const signOnBtn = document.getElementById('signOnBtn');
+          input.value = storedCallsign;
+          input.disabled = true;
+          signOnBtn.textContent = 'SIGNED ON';
+        }else{
+          try{ localStorage.removeItem('mdt_my_callsign'); }catch(_e){}
+        }
+      }
+    }
+  }, (err)=>{
+    console.error('units onValue error', err);
+    notifyFbErrorOnce();
+  });
+
+  function closeAnyStatusDropdown(){
+    document.querySelectorAll('.status-dropdown').forEach(el => el.remove());
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.status-pill') && !e.target.closest('.status-dropdown')){
+      closeAnyStatusDropdown();
+    }
+  });
+
+  document.getElementById('dispatchIndex').addEventListener('click', async (e)=>{
+    const removeBtn = e.target.closest('[data-remove-key]');
+    if(removeBtn){
+      e.stopPropagation();
+      const targetKey = removeBtn.getAttribute('data-remove-key');
+      const targetCallsign = removeBtn.getAttribute('data-remove-callsign');
+      if(confirm('Remove unit ' + targetCallsign + ' from the Dispatch Index?')){
+        await removeUnit(targetCallsign, targetKey);
+      }
+      return;
+    }
+
+    // Callsign click → show unit info modal
+    const callsignLink = e.target.closest('[data-info-callsign]');
+    if(callsignLink && !e.target.closest('.unit-remove-btn') && !e.target.closest('.status-pill')){
+      e.stopPropagation();
+      const cs = callsignLink.getAttribute('data-info-callsign');
+      openUnitInfoModal(cs);
+      return;
+    }
+
+    const setBtn = e.target.closest('[data-set-status]');
+    if(setBtn){
+      e.stopPropagation();
+      const targetCallsign = setBtn.getAttribute('data-target-callsign');
+      const targetKey = setBtn.getAttribute('data-target-key');
+      const status = setBtn.getAttribute('data-set-status');
+      closeAnyStatusDropdown();
+      await setStatusFor(targetCallsign, status, targetKey);
+      return;
+    }
+
+    const pill = e.target.closest('.status-pill');
+    if(!pill) return;
+    e.stopPropagation();
+
+    const alreadyOpen = pill.querySelector('.status-dropdown');
+    closeAnyStatusDropdown();
+    if(alreadyOpen) return;
+
+    const callsign = pill.getAttribute('data-callsign');
+    const unitKeyAttr = pill.getAttribute('data-unit-key');
+    const dropdown = document.createElement('div');
+    dropdown.className = 'status-dropdown';
+    dropdown.innerHTML = STATUS_OPTIONS.map(opt => `
+      <button class="opt-${opt}" data-set-status="${opt}" data-target-callsign="${escapeHtml(callsign)}" data-target-key="${escapeHtml(unitKeyAttr)}">
+        <span class="dot"></span>${formatStatusLabel(opt)}
+      </button>
+    `).join('');
+    pill.appendChild(dropdown);
+  });
+
+  function unitKey(callsign){
+    // Firebase keys can't contain ./#$[] -- sanitize just in case
+    return callsign.replace(/[.#$\[\]\/]/g, '_');
+  }
+
+  async function signOn(){
+    const input = document.getElementById('callsignInput');
+    const callsign = input.value.trim().toUpperCase();
+    if(!callsign){
+      showToast('Enter a callsign first.');
+      return;
+    }
+    if(myCallsign){
+      showToast('Jesteś już wypisany jako ' + myCallsign + '. Wypisz się, aby zmienić znak.');
+      return;
+    }
+    const existingKey = unitKey(callsign);
+    const alreadySignedOn = Object.entries(unitsCache).some(([key, u]) => key !== existingKey && u.callsign && u.callsign.toUpperCase() === callsign);
+    if(alreadySignedOn){
+      showToast('Znak "' + callsign + '" jest już wypisany. Wybierz inny.');
+      return;
+    }
+
+    const signOnBtn = document.getElementById('signOnBtn');
+    signOnBtn.disabled = true;
+    signOnBtn.textContent = 'SIGNING ON...';
+
+    try{
+      const session = getSessionData();
+      await set(child(unitsRef, existingKey), {
+        callsign,
+        status: 'AVAILABLE',
+        discordNick: session.discordNick || '',
+        fullName: session.fullName || ''
+      });
+      myCallsign = callsign;
+      try{ localStorage.setItem('mdt_my_callsign', callsign); }catch(_e){}
+      input.disabled = true;
+      signOnBtn.textContent = 'SIGNED ON';
+      showToast(callsign + ' signed on — AVAILABLE');
+      renderUnits(unitsCache);
+    }catch(e){
+      console.error('signOn error', e);
+      notifyFbErrorOnce();
+      signOnBtn.disabled = false;
+      signOnBtn.textContent = 'SIGN ON';
+    }
+  }
+
+  async function removeUnit(callsign, realKey){
+    try{
+      await remove(child(unitsRef, realKey || unitKey(callsign)));
+      showToast(callsign + ' removed.');
+      if(callsign === myCallsign){
+        myCallsign = null;
+        try{ localStorage.removeItem('mdt_my_callsign'); }catch(_e){}
+        const input = document.getElementById('callsignInput');
+        const signOnBtn = document.getElementById('signOnBtn');
+        input.disabled = false;
+        input.value = '';
+        signOnBtn.disabled = false;
+        signOnBtn.textContent = 'SIGN ON';
+      }
+    }catch(e){
+      console.error('removeUnit error', e);
+      notifyFbErrorOnce();
+    }
+  }
+
+  // Sets status for a specific callsign. Used both by the top menu (for the
+  // signed-on user) and by clicking any unit's status pill in Dispatch Index.
+  async function setStatusFor(callsign, status, realKey){
+    if(!callsign){
+      showToast('Sign on with a callsign first.');
+      return;
+    }
+    try{
+      await update(child(unitsRef, realKey || unitKey(callsign)), { callsign, status });
+      if(callsign === myCallsign){
+        highlightActiveStatus(status);
+      }
+      showToast(callsign + ' set to ' + formatStatusLabel(status));
+    }catch(e){
+      console.error('setStatusFor error', e);
+      notifyFbErrorOnce();
+    }
+  }
+
+
+  async function setStatus(status){
+    await setStatusFor(myCallsign, status);
+  }
+
+  function highlightActiveStatus(status){
+    document.querySelectorAll('.top-btn[data-status]').forEach(btn=>{
+      btn.classList.toggle('status-selected', btn.getAttribute('data-status') === status);
+    });
+  }
+
+  document.getElementById('signOnBtn').addEventListener('click', signOn);
+  document.getElementById('callsignInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') signOn();
+  });
+  document.querySelectorAll('.top-btn[data-status]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const status = btn.getAttribute('data-status');
+      await setStatus(status);
+      if(status === 'CODE-6'){
+        openAddCallModal();
+      }
+    });
+  });
+
+  // ---------- CALLS (Dispatch Detail, realtime via Firebase) ----------
+  let callsCache = [];
+  const callsRef = ref(db, 'calls');
+  let activeCallKey = null;
+
+  function getSortedCalls(){
+    return [...callsCache].sort((a,b)=> a.ts - b.ts);
+  }
+
+  function renderCallsList(){
+    const container = document.getElementById('dispatchDetail');
+    const sorted = getSortedCalls();
+    if(sorted.length === 0){
+      container.innerHTML = '<div class="empty-state">No active calls.</div>';
+      return;
+    }
+    container.innerHTML = sorted.map((c, idx) => `
+      <div class="call-row" data-call-key="${escapeHtml(c.key)}">
+        <span class="call-number">CALL #${idx + 1}</span>
+        <span class="call-location">${escapeHtml(c.location)}</span>
+      </div>
+    `).join('');
+  }
+
+  onValue(callsRef, (snapshot)=>{
+    const val = snapshot.val() || {};
+    callsCache = Object.entries(val).map(([key, c]) => ({ ...c, key }));
+    renderCallsList();
+    if(activeCallKey && document.getElementById('callDetailModal').classList.contains('show')){
+      renderCallDetail(activeCallKey);
+    }
+  }, (err)=>{
+    console.error('calls onValue error', err);
+    notifyFbErrorOnce();
+  });
+
+  document.getElementById('dispatchDetail').addEventListener('click', (e)=>{
+    const row = e.target.closest('[data-call-key]');
+    if(!row) return;
+    activeCallKey = row.getAttribute('data-call-key');
+    renderCallDetail(activeCallKey);
+    openModal('callDetailModal');
+  });
+
+  function renderCallDetail(key){
+    const sorted = getSortedCalls();
+    const idx = sorted.findIndex(c => c.key === key);
+    const call = sorted[idx];
+    if(!call){
+      closeModal('callDetailModal');
+      return;
+    }
+    document.getElementById('callDetailTitle').textContent = 'CALL #' + (idx + 1);
+    document.getElementById('callDetailLocation').textContent = call.location;
+    document.getElementById('callDetailType').textContent = call.type;
+    document.getElementById('callDetailDesc').textContent = call.desc || 'Brak opisu.';
+    const units = call.units ? Object.values(call.units) : [];
+    const unitsContainer = document.getElementById('callDetailUnits');
+    if(units.length === 0){
+      unitsContainer.innerHTML = '<span style="color:var(--text-muted); font-style:italic; font-size:13px;">Brak jednostek.</span>';
+    } else {
+      unitsContainer.innerHTML = units.map(u => `<span class="unit-chip ${u === myCallsign ? 'me' : ''}">${escapeHtml(u)}</span>`).join('');
+    }
+  }
+
+  function openAddCallModal(){
+    document.getElementById('callLocationInput').value = '';
+    document.getElementById('callTypeInput').value = '';
+    document.getElementById('callDescInput').value = '';
+    checkCallReady();
+    openModal('addCallModal');
+  }
+  document.getElementById('addCallBtn').addEventListener('click', openAddCallModal);
+
+  function checkCallReady(){
+    const loc = document.getElementById('callLocationInput').value.trim();
+    const type = document.getElementById('callTypeInput').value.trim();
+    const desc = document.getElementById('callDescInput').value.trim();
+    document.getElementById('submitCallBtn').disabled = !(loc && type && desc);
+  }
+  document.getElementById('callLocationInput').addEventListener('input', checkCallReady);
+  document.getElementById('callTypeInput').addEventListener('input', checkCallReady);
+  document.getElementById('callDescInput').addEventListener('input', checkCallReady);
+
+  document.getElementById('submitCallBtn').addEventListener('click', async ()=>{
+    const location = document.getElementById('callLocationInput').value.trim();
+    const type = document.getElementById('callTypeInput').value.trim();
+    const desc = document.getElementById('callDescInput').value.trim();
+    if(!location || !type || !desc) return;
+    if(!myCallsign){
+      showToast('Sign on with a callsign first.');
+      return;
+    }
+    const submitBtn = document.getElementById('submitCallBtn');
+    submitBtn.disabled = true;
+    const now = new Date();
+    try{
+      const newRef = push(callsRef);
+      await set(newRef, {
+        location,
+        type,
+        desc,
+        units: { [unitKey(myCallsign)]: myCallsign },
+        ts: now.getTime(),
+        time: now.toLocaleString()
+      });
+      await setStatusFor(myCallsign, 'NOT-AVAILABLE');
+      closeModal('addCallModal');
+      showToast('Call dodany.');
+    }catch(e){
+      console.error('addCall error', e);
+      notifyFbErrorOnce();
+    }
+    submitBtn.disabled = false;
+  });
+
+  document.getElementById('callRespondBtn').addEventListener('click', async ()=>{
+    if(!myCallsign){
+      showToast('Sign on with a callsign first.');
+      return;
+    }
+    if(!activeCallKey) return;
+    try{
+      await update(child(callsRef, activeCallKey + '/units'), { [unitKey(myCallsign)]: myCallsign });
+      await setStatusFor(myCallsign, '10-97');
+      showToast(myCallsign + ' reaguje na call — status W DRODZE.');
+      renderCallDetail(activeCallKey);
+    }catch(e){
+      console.error('callRespond error', e);
+      notifyFbErrorOnce();
+    }
+  });
+
+  document.getElementById('callOnSceneBtn').addEventListener('click', async ()=>{
+    if(!myCallsign){
+      showToast('Sign on with a callsign first.');
+      return;
+    }
+    try{
+      await setStatusFor(myCallsign, 'NOT-AVAILABLE');
+      showToast(myCallsign + ' na miejscu — status NOT AVAILABLE.');
+    }catch(e){
+      console.error('callOnScene error', e);
+      notifyFbErrorOnce();
+    }
+  });
+
+  // ---------- DELETE CALL (top bar button replaces old 10-98 status) ----------
+  function renderDeleteCallList(){
+    const container = document.getElementById('deleteCallList');
+    const sorted = getSortedCalls();
+    if(sorted.length === 0){
+      container.innerHTML = '<div class="empty-state">No active calls.</div>';
+      return;
+    }
+    container.innerHTML = sorted.map((c, idx) => `
+      <div class="delete-call-row">
+        <div class="call-info">
+          <div class="call-number">CALL #${idx + 1}</div>
+          <div class="call-location">${escapeHtml(c.location)}</div>
+        </div>
+        <button data-delete-call-key="${escapeHtml(c.key)}">USUŃ</button>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('deleteCallTopBtn').addEventListener('click', ()=>{
+    renderDeleteCallList();
+    openModal('deleteCallModal');
+  });
+
+  async function setUnitsAvailableSilent(callsigns){
+    await Promise.all(callsigns.map(cs => update(child(unitsRef, unitKey(cs)), { callsign: cs, status: 'AVAILABLE' })));
+  }
+
+  document.getElementById('deleteCallList').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-delete-call-key]');
+    if(!btn) return;
+    const key = btn.getAttribute('data-delete-call-key');
+    const call = callsCache.find(c => c.key === key);
+    const label = call ? call.location : key;
+    if(confirm('Usunąć call: ' + label + '?')){
+      try{
+        const assignedUnits = call && call.units ? Object.values(call.units) : [];
+        await remove(child(callsRef, key));
+        await setUnitsAvailableSilent(assignedUnits);
+        showToast('Call usunięty.');
+        renderDeleteCallList();
+        if(activeCallKey === key){
+          closeModal('callDetailModal');
+        }
+      }catch(e){
+        console.error('deleteCall error', e);
+        notifyFbErrorOnce();
+      }
+    }
+  });
+
+  // ---------- MESSAGES (realtime via Firebase) ----------
+  const messagesRef = ref(db, 'messages');
+
+  document.getElementById('newMessageBtn').addEventListener('click', ()=>{
+    const session = getSessionData();
+    document.getElementById('msgSenderPreviewName').textContent = session.fullName || '(brak danych)';
+    document.getElementById('msgSenderPreviewDiscord').textContent = session.discordNick ? ('Discord: ' + session.discordNick) : '';
+    openModal('newMessageModal');
+  });
+
+  document.getElementById('sendMessageBtn').addEventListener('click', async ()=>{
+    const session = getSessionData();
+    const fromName = (session.fullName || '').trim();
+    const fromDiscord = (session.discordNick || '').trim();
+    const body = document.getElementById('msgBody').value.trim();
+    if(!fromName || !body){
+      showToast('Musisz być zalogowany i wpisać treść wiadomości.');
+      return;
+    }
+    const sendBtn = document.getElementById('sendMessageBtn');
+    sendBtn.disabled = true;
+
+    const now = new Date();
+    try{
+      const newRef = push(messagesRef);
+      await set(newRef, {
+        from: fromName,
+        fromDiscord: fromDiscord,
+        body,
+        ts: now.getTime(),
+        time: now.toLocaleString()
+      });
+      document.getElementById('msgBody').value = '';
+      closeModal('newMessageModal');
+      showToast('Message sent.');
+    }catch(e){
+      console.error('sendMessage error', e);
+      notifyFbErrorOnce();
+    }
+    sendBtn.disabled = false;
+  });
+
+  onValue(messagesRef, (snapshot)=>{
+    const val = snapshot.val() || {};
+    messagesCache = Object.entries(val).map(([key, m]) => ({ ...m, key }));
+    rebuildFeed();
+  }, (err)=>{
+    console.error('messages onValue error', err);
+    notifyFbErrorOnce();
+  });
+
+  // ---------- BOLO (realtime via Firebase) ----------
+  const bolosRef = ref(db, 'bolos');
+  const boloLaunchBtn = document.getElementById('boloLaunchBtn');
+  const boloTabBrowse = document.getElementById('boloTabBrowse');
+  const boloTabAdd = document.getElementById('boloTabAdd');
+  const boloBrowsePane = document.getElementById('boloBrowsePane');
+  const boloAddPane = document.getElementById('boloAddPane');
+  const boloAddFooter = document.getElementById('boloAddFooter');
+  const boloPhotoDrop = document.getElementById('boloPhotoDrop');
+  const boloDesc = document.getElementById('boloDesc');
+  const submitBoloBtn = document.getElementById('submitBoloBtn');
+
+  boloLaunchBtn.addEventListener('click', async ()=>{
+    showBoloTab('browse');
+    renderBoloFeed();
+    openModal('boloModal');
+  });
+
+  function showBoloTab(tab){
+    if(tab === 'browse'){
+      boloTabBrowse.classList.add('active');
+      boloTabAdd.classList.remove('active');
+      boloBrowsePane.style.display = 'flex';
+      boloAddPane.style.display = 'none';
+      boloAddFooter.style.display = 'none';
+    } else {
+      boloTabAdd.classList.add('active');
+      boloTabBrowse.classList.remove('active');
+      boloBrowsePane.style.display = 'none';
+      boloAddPane.style.display = 'flex';
+      boloAddFooter.style.display = 'flex';
+    }
+  }
+  boloTabBrowse.addEventListener('click', ()=>{
+    showBoloTab('browse');
+    renderBoloFeed();
+  });
+  boloTabAdd.addEventListener('click', ()=> showBoloTab('add'));
+
+  function renderBoloFeed(){
+    const sorted = [...bolosCache].sort((a,b)=> b.ts - a.ts);
+    const feed = document.getElementById('boloFeed');
+    if(sorted.length === 0){
+      feed.innerHTML = '<div class="empty-state">No active BOLOs.</div>';
+      return;
+    }
+    feed.innerHTML = sorted.map(b => `
+      <div class="bolo-card" data-bolo-key="${escapeHtml(b.key)}" role="button" tabindex="0">
+        <img src="${b.photo}" alt="BOLO">
+        <div class="bolo-text">
+          <div class="bolo-meta">BOLO — ${escapeHtml(b.time)}</div>
+          <div class="bolo-desc">${b.desc ? escapeHtml(b.desc) : '<span style="color:var(--text-muted); font-style:italic;">No description provided.</span>'}</div>
+        </div>
+        <button class="bolo-delete" data-bolo-delete-key="${escapeHtml(b.key)}" title="Delete BOLO">✕</button>
+      </div>
+    `).join('');
+  }
+
+  onValue(bolosRef, (snapshot)=>{
+    const val = snapshot.val() || {};
+    bolosCache = Object.entries(val).map(([key, b]) => ({ ...b, key }));
+    if(document.getElementById('boloModal').classList.contains('show') && boloBrowsePane.style.display !== 'none'){
+      renderBoloFeed();
+    }
+  }, (err)=>{
+    console.error('bolos onValue error', err);
+    notifyFbErrorOnce();
+  });
+
+  async function deleteBolo(key){
+    try{
+      await remove(child(bolosRef, key));
+      showToast('BOLO deleted.');
+    }catch(e){
+      console.error('deleteBolo error', e);
+      notifyFbErrorOnce();
+    }
+  }
+
+  document.getElementById('boloFeed').addEventListener('click', (e)=>{
+    const delBtn = e.target.closest('[data-bolo-delete-key]');
+    if(delBtn){
+      e.stopPropagation();
+      const key = delBtn.getAttribute('data-bolo-delete-key');
+      if(confirm('Delete this BOLO? This cannot be undone.')){
+        deleteBolo(key);
+      }
+      return;
+    }
+    const card = e.target.closest('[data-bolo-key]');
+    if(!card) return;
+    const key = card.getAttribute('data-bolo-key');
+    const bolo = bolosCache.find(b => b.key === key);
+    if(!bolo) return;
+    document.getElementById('boloDetailImg').src = bolo.photo;
+    document.getElementById('boloDetailTime').textContent = bolo.time;
+    document.getElementById('boloDetailDesc').textContent = bolo.desc || 'No description provided.';
+    document.getElementById('boloDetailModal').setAttribute('data-current-key', key);
+    openModal('boloDetailModal');
+  });
+
+  document.getElementById('boloDetailImg').addEventListener('click', ()=>{
+    const src = document.getElementById('boloDetailImg').src;
+    if(!src) return;
+    document.getElementById('lightboxImg').src = src;
+    openModal('lightboxModal');
+  });
+
+  document.getElementById('boloDetailDeleteBtn').addEventListener('click', ()=>{
+    const key = document.getElementById('boloDetailModal').getAttribute('data-current-key');
+    if(!key) return;
+    if(confirm('Delete this BOLO? This cannot be undone.')){
+      deleteBolo(key);
+      closeModal('boloDetailModal');
+    }
+  });
+
+  document.getElementById('lightboxModal').addEventListener('click', (e)=>{
+    if(e.target.id === 'lightboxModal' || e.target.id === 'lightboxImg'){
+      closeModal('lightboxModal');
+    }
+  });
+
+
+  function checkBoloReady(){
+    submitBoloBtn.disabled = !boloPhotoData;
+  }
+  boloDesc.addEventListener('input', checkBoloReady);
+
+  function rebindPhotoInput(){
+    const input = document.getElementById('boloPhotoInput');
+    input.addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        boloPhotoData = ev.target.result;
+        boloPhotoDrop.classList.add('has-img');
+        boloPhotoDrop.innerHTML = `<img src="${boloPhotoData}" alt="BOLO photo"><input type="file" id="boloPhotoInput" accept="image/*">`;
+        rebindPhotoInput();
+        checkBoloReady();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  rebindPhotoInput();
+
+  submitBoloBtn.addEventListener('click', async ()=>{
+    if(!boloPhotoData) return;
+    submitBoloBtn.disabled = true;
+
+    const now = new Date();
+    try{
+      const newRef = push(bolosRef);
+      await set(newRef, {
+        photo: boloPhotoData,
+        desc: boloDesc.value.trim(),
+        ts: now.getTime(),
+        time: now.toLocaleString()
+      });
+
+      // reset add form
+      boloPhotoData = null;
+      boloPhotoDrop.classList.remove('has-img');
+      boloPhotoDrop.innerHTML = `<span id="boloPhotoPlaceholder">Click to attach a BOLO photo (report screenshot, suspect, vehicle...)</span><input type="file" id="boloPhotoInput" accept="image/*">`;
+      rebindPhotoInput();
+      boloDesc.value = '';
+      checkBoloReady();
+      showToast('BOLO posted.');
+      renderBoloFeed();
+      showBoloTab('browse');
+    }catch(e){
+      console.error('postBolo error', e);
+      notifyFbErrorOnce();
+      checkBoloReady();
+    }
+  });
+
+  // ---------- message detail feed ----------
+  function rebuildFeed(){
+    const container = document.getElementById('messageDetail');
+    const sorted = [...messagesCache].sort((a,b)=> b.ts - a.ts);
+
+    if(sorted.length === 0){
+      container.innerHTML = '<div class="msg-empty">No messages.</div>';
+      return;
+    }
+    container.innerHTML = sorted.map(m => `
+      <div class="msg-item" data-key="${escapeHtml(m.key)}">
+        <button class="msg-delete" data-delete-key="${escapeHtml(m.key)}" title="Delete message">✕</button>
+        <div class="meta">
+          <div class="from-block">
+            <span class="from">${escapeHtml(m.from)}</span>
+            ${m.fromDiscord ? `<span class="from-discord">${escapeHtml(m.fromDiscord)}</span>` : ''}
+          </div>
+          <span>${escapeHtml(m.time)}</span>
+        </div>
+        <div>${escapeHtml(m.body)}</div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteMessage(key){
+    try{
+      await remove(child(messagesRef, key));
+      showToast('Message deleted.');
+    }catch(e){
+      console.error('deleteMessage error', e);
+      notifyFbErrorOnce();
+    }
+  }
+
+  document.getElementById('messageDetail').addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-delete-key]');
+    if(!btn) return;
+    deleteMessage(btn.getAttribute('data-delete-key'));
+  });
+
+  // Data loads automatically via the onValue() realtime listeners above —
+  // no polling needed, Firebase pushes updates the instant they happen.
+
+
+</script>
